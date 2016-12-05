@@ -8,32 +8,34 @@
 # chkconfig: 345 40 60
 #
 # processname: stunnel
-# pidfile: /var/run/stunnel/stunnel.pid
+# pidfile: /var/run/stunnel.pid
 #
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-servicename=stunnel
-processname=stunnel
-pidfile=/var/run/stunnel/stunnel.pid
+prog=stunnel
+pidfile=/var/run/$prog.pid
+lockfile=/var/lock/subsys/$prog
 
 RETVAL=0
 
 start() {
-    echo -n "Starting stunnel services: "
-    daemon --check $servicename '/usr/bin/stunnel /etc/stunnel/stunnel.conf &>/dev/null'
+    echo -n $"Starting stunnel services: "
+    daemon --check $prog "/usr/bin/stunnel /etc/stunnel/stunnel.conf &>/dev/null"
     RETVAL=$?
     echo
-    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$servicename
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
 }
 
 stop() {
-    echo -n "Stopping stunnel services: "
-    killproc -p $pidfile $servicename
+    echo -n $"Stopping stunnel services: "
+    killproc -p $pidfile $prog
     RETVAL=$?
     echo
-    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$servicename
+    [ $RETVAL -eq 0 ] && rm -f lockfile
+    return $RETVAL
 }
 
 # See how we were called.
@@ -45,7 +47,7 @@ case "$1" in
         stop
         ;;
     status)
-        status -p $pidfile $processname
+        status -p $pidfile $prog
         RETVAL=$?
         ;;
     restart)
@@ -53,15 +55,13 @@ case "$1" in
         start
         ;;
     condrestart)
-        if [ -f /var/lock/subsys/$servicename ]; then
+        if status -p $pidfile $prog > /dev/null; then
             stop
             start
         fi
         ;;
     *)
         echo $"Usage: $0 {start|stop|status|restart|condrestart}"
-        RETVAL=1
+        exit 2
         ;;
 esac
-
-exit $RETVAL
