@@ -1,0 +1,15 @@
+; systemd script for stunnel. Please put this file in
+; /etc/systemd/system/stunnel.service or /usr/lib/systemd/system/stunnel.service
+
+[Unit]
+Description=SSL tunnel for network daemons
+After=syslog.target
+
+[Service]
+ExecStart=/bin/stunnel /etc/stunnel/stunnel.conf
+ExecStop=kill -9 $(pgrep stunnel)
+ExecStatus=pgrep stunnel
+Type=forking
+
+[Install]
+WantedBy=multi-user.target

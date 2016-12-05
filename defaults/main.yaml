@@ -1,0 +1,32 @@
+---
+
+# Package to be installed (explicit version can be specified here)
+stunnel_pkg: stunnel
+
+# Name of the Stunnel service
+stunnel_service: stunnel
+
+# Whether to install the service file
+stunnel_service_install: yes
+
+# Path of the init.d script
+stunnel_service_upstart: /etc/init.d/{{ stunnel_service }}
+
+# Path of the systemd script
+stunnel_service_systemd: /usr/lib/systemd/system/{{ stunnel_service }}.service
+
+# Data structure which helps to choose the right service script
+stunnel_service_script:
+  systemd:
+    src: stunnel.systemd
+    dest: "{{ stunnel_service_systemd }}"
+  upstart:
+    src: stunnel.upstart
+    dest: "{{ stunnel_service_upstart }}"
+    mode: "0755"
+
+# Location of the Stunnel config file
+stunnel_config_file: /etc/stunnel/stunnel.conf
+
+# Stunnel configuration
+stunnel_config: {}

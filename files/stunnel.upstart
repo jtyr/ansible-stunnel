@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# stunnel      Start/Stop the stunnel daemons
+#
+# description: stunnel is a script that runs stunnel daemons
+#              version 1.00
+#
+# chkconfig: 345 40 60
+#
+# processname: stunnel
+# pidfile: /var/run/stunnel/stunnel.pid
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+servicename=stunnel
+processname=stunnel
+pidfile=/var/run/stunnel/stunnel.pid
+
+RETVAL=0
+
+start() {
+    echo -n "Starting stunnel services: "
+    daemon --check $servicename '/usr/bin/stunnel /etc/stunnel/stunnel.conf &>/dev/null'
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$servicename
+}
+
+stop() {
+    echo -n "Stopping stunnel services: "
+    killproc -p $pidfile $servicename
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$servicename
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status -p $pidfile $processname
+        RETVAL=$?
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    condrestart)
+        if [ -f /var/lock/subsys/$servicename ]; then
+            stop
+            start
+        fi
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL

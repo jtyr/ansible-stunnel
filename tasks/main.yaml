@@ -1,0 +1,51 @@
+---
+
+- name: Test distribution
+  assert:
+    that: >
+      ansible_os_family == "RedHat"
+  tags:
+    - stunnel_assert
+
+- name: Install Stunnel
+  package:
+    name: "{{ stunnel_pkg }}"
+    state: present
+  notify:
+    - Restart Stunnel service
+  tags:
+    - stunnel_pkg
+
+- name: Configure Stunnel
+  template:
+    src: stunnel.conf.j2
+    dest: "{{ stunnel_config_file }}"
+  notify:
+    - Restart Stunnel service
+  tags:
+    - stunnel_config
+
+- name: Install Stunnel service script
+  copy:
+    src: "{{ stunnel_service_script[ansible_service_mgr]['src'] }}"
+    dest: "{{ stunnel_service_script[ansible_service_mgr]['dest'] }}"
+    mode: "{{ stunnel_service_script[ansible_service_mgr]['mode'] | default('0644') }}"
+  when: >
+    stunnel_service_install
+  tags:
+    - stunnel_service
+
+- name: "{{ 'Enable' if stunnel_config | length > 0 else 'Disable' }} Stunnel service"
+  service:
+    name: "{{ stunnel_service }}"
+    enabled: "{{ 'yes' if stunnel_config | length > 0 else 'no' }}"
+  tags:
+    - stunnel_service
+
+- name: "{{ 'Start' if stunnel_config | length > 0 else 'Stop' }} Stunnel service"
+  service:
+    name: "{{ stunnel_service }}"
+    state: "{{ 'running' if stunnel_config | length > 0 else 'stopped' }}"
+  register: stunnel_service_started
+  tags:
+    - stunnel_service

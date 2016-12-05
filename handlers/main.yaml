@@ -1,0 +1,11 @@
+---
+
+- name: Restart Stunnel service
+  service:
+    name: "{{ stunnel_service }}"
+    state: restarted
+  when: >
+    stunnel_config | length > 0 and (
+        stunnel_service_started is not defined or
+        not stunnel_service_started.changed
+    )
