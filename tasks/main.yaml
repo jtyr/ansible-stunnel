@@ -10,7 +10,6 @@
 - name: Install Stunnel
   package:
     name: "{{ stunnel_pkg }}"
-    state: present
   notify:
     - Restart Stunnel service
   tags:
