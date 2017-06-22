@@ -20,6 +20,7 @@ Example
 
 - name: Example of how to configure Stunnel
   hosts: host1
+  vars:
     # This is the configuration
     stunnel_config:
       smtps:
