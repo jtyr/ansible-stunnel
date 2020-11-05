@@ -44,7 +44,7 @@
 - name: "{{ 'Start' if stunnel_config | length > 0 else 'Stop' }} Stunnel service"
   service:
     name: "{{ stunnel_service }}"
-    state: "{{ 'running' if stunnel_config | length > 0 else 'stopped' }}"
+    state: "{{ 'started' if stunnel_config | length > 0 else 'stopped' }}"
   register: stunnel_service_started
   tags:
     - stunnel_service
